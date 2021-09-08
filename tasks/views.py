@@ -1,0 +1,38 @@
+from django.shortcuts import redirect, render
+from .models import *
+from .forms import *
+# Create your views here.
+def index(request):
+    tasks = Task.objects.all()   #Grabe everything from tasks
+    form = TaskForm()
+    if request.method =='POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            form.save()        #save in data base
+        return redirect('/')   #it'll redirect back to the same templates
+
+    context = {'tasks':tasks, 'form':form}
+    return render(request,'tasks/list.html',context)
+#this for update task 
+def updateTask(request, pk):
+    task = Task.objects.get(id=pk)
+
+    form = TaskForm(instance=task)
+    if request.method == 'POST':
+        form =TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            return redirect('/')      #back again to the home page
+    
+    context ={'form':form}
+    return render(request, 'tasks/update_task.html',context)
+
+
+def deleteTask(request, pk):
+    item = Task.objects.get(id=pk)
+    if request.method == 'POST':
+        item.delete()
+        return redirect('/')
+    context = {'item':item}
+    return render(request,'tasks/delete.html',context)
+
